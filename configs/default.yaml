@@ -1,0 +1,84 @@
+# ============================================================
+# Next-Generation Speech AI Dataset Builder — Default Config
+# ============================================================
+
+# ── Paths ────────────────────────────────────────────────────
+paths:
+  raw_audio_dir: "data/raw"
+  processed_dir: "data/processed"
+  augmented_dir: "data/augmented"
+  segments_dir: "data/segments"
+  export_dir: "data/export"
+  metadata_db: "storage/metadata.json"
+  faiss_index: "storage/faiss.index"
+  embeddings_store: "storage/embeddings.npy"
+  log_dir: "logs"
+
+# ── Audio Settings ───────────────────────────────────────────
+audio:
+  target_sample_rate: 16000
+  mono: true
+  supported_formats:
+    - ".wav"
+    - ".flac"
+    - ".mp3"
+    - ".ogg"
+
+# ── Preprocessing ───────────────────────────────────────────
+preprocessing:
+  resample: true
+  normalize: true
+  normalization_method: "peak"        # peak | rms
+  trim_silence: true
+  silence_threshold_db: -40.0
+  silence_min_length_ms: 100
+
+# ── Augmentation ─────────────────────────────────────────────
+augmentation:
+  enabled: true
+  num_augmented_copies: 2
+  seed: 42
+  noise_injection:
+    enabled: true
+    snr_range_db: [5, 15]             # min/max SNR in dB
+  speed_perturbation:
+    enabled: true
+    factor_range: [0.85, 1.15]        # speed multiplier range
+  pitch_shift:
+    enabled: true
+    semitone_range: [-4, 4]           # semitones up/down
+
+# ── Segmentation ─────────────────────────────────────────────
+segmentation:
+  enabled: true
+  method: "fixed"                     # fixed | energy
+  chunk_duration_sec: 10.0
+  overlap_sec: 1.0
+  min_chunk_duration_sec: 2.0
+  speaker_aware: true
+  energy_threshold_db: -35.0
+
+# ── Metadata ─────────────────────────────────────────────────
+metadata:
+  default_language: "en"
+  default_speaker_id: "unknown"
+
+# ── Indexing ─────────────────────────────────────────────────
+indexing:
+  enabled: true
+  embedding_dim: 128
+  n_mels: 128
+  max_frames: 128                     # truncate/pad embeddings
+
+# ── Export ───────────────────────────────────────────────────
+export:
+  train_ratio: 0.8
+  stratify_by: "speaker_id"           # field for stratified split
+  shuffle: true
+  seed: 42
+
+# ── Logging ──────────────────────────────────────────────────
+logging:
+  level: "INFO"
+  format: "%(asctime)s | %(levelname)-8s | %(name)s | %(message)s"
+  file: "logs/pipeline.log"
