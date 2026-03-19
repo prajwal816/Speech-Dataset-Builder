@@ -9,7 +9,10 @@ import logging
 import os
 from typing import List, Optional, Tuple
 
-import faiss
+import logging
+import os
+from typing import List, Optional, Tuple, Any
+
 import librosa
 import numpy as np
 
@@ -43,7 +46,7 @@ class FAISSIndex:
         self.n_mels = n_mels
         self.max_frames = max_frames
         self.sr = sr
-        self.index: Optional[faiss.IndexFlatL2] = None
+        self.index: Optional[Any] = None
         self._embeddings: List[np.ndarray] = []
 
     # ------------------------------------------------------------------
@@ -89,6 +92,8 @@ class FAISSIndex:
         signals : list[np.ndarray]
             List of audio signals.
         """
+        import faiss
+        
         self._embeddings = [self.extract_embedding(s) for s in signals]
         matrix = np.vstack(self._embeddings).astype(np.float32)
         self.index = faiss.IndexFlatL2(self.embedding_dim)
@@ -123,6 +128,8 @@ class FAISSIndex:
 
     def save(self, index_path: str, embeddings_path: str) -> None:
         """Save FAISS index and raw embeddings to disk."""
+        import faiss
+
         os.makedirs(os.path.dirname(os.path.abspath(index_path)), exist_ok=True)
         if self.index is not None:
             faiss.write_index(self.index, index_path)
@@ -132,6 +139,8 @@ class FAISSIndex:
 
     def load(self, index_path: str, embeddings_path: Optional[str] = None) -> None:
         """Load a previously saved FAISS index (and optional embeddings)."""
+        import faiss
+
         self.index = faiss.read_index(index_path)
         if embeddings_path and os.path.exists(embeddings_path):
             self._embeddings = list(np.load(embeddings_path))
